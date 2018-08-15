@@ -65,10 +65,25 @@ def register():
 
 
 #user login
-@app.route('/login',methods=['GET','POST']):
+@app.route('/login',methods=['GET','POST'])
 def login():
 	if request.method=="POST":
-		return render_template('login.html')
+		username = request.form['username']
+		password_candidate = request.form['password']
+
+		cur = mysql.connection.cursor()
+		result = cur.execute("select * from users where username = %s",[username])
+		if result >0:
+			data=cur.fetchone()
+			password = data['password']
+
+			if sha256_crypt.verify(password_candidate, password):
+				app.logger.info('password matched')
+			else:
+				app.logger.info('password not matched')
+		else:
+			app.logger.info('No User')
+	return render_template('login.html')
 
 if __name__ == '__main__':
 	app.secret_key="secret123"
