@@ -83,7 +83,7 @@ def login():
 				session["username"] = username
 				flash("You are now logged in","success")
 
-				redirect(url_for("dashboard"))
+				return redirect(url_for("dashboard"))
 			else:
 				errormessage ="invalid login"
 				return render_template('login.html',error = errormessage)
@@ -91,8 +91,20 @@ def login():
 		else:
 			errormessage ="username not found"
 			return render_template('login.html',error = errormessage)
-		
+
 	return render_template('login.html')
+
+# Logout
+@app.route('/logout')
+def logout():
+	session.clear()
+	flash('You are now logged out','success')
+	return redirect(url_for('login'))
+
+#Dashboard
+@app.route('/dashboard')
+def dashboard():
+	return render_template('dashboard.html')
 
 if __name__ == '__main__':
 	app.secret_key="secret123"
