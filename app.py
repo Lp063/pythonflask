@@ -70,22 +70,28 @@ def login():
 	if request.method=="POST":
 		username = request.form['username']
 		password_candidate = request.form['password']
-
+		
 		cur = mysql.connection.cursor()
 		result = cur.execute("select * from users where username = %s",[username])
-		if result >0:
+		
+		if result > 0:
 			data=cur.fetchone()
 			password = data['password']
-
+			
 			if sha256_crypt.verify(password_candidate, password):
-				app.logger.info('password matched')
+				session["logged_in"] = True
+				session["username"] = username
+				flash("You are now logged in","success")
+
+				redirect(url_for("dashboard"))
 			else:
 				errormessage ="invalid login"
-				return render_template('login.html',errormessage = errormessage)
+				return render_template('login.html',error = errormessage)
+			cur.close()
 		else:
 			errormessage ="username not found"
-			return render_template('login.html',errormessage = errormessage)
-
+			return render_template('login.html',error = errormessage)
+		
 	return render_template('login.html')
 
 if __name__ == '__main__':
